@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@langchain/google-genai": "^0.0.26",
+    "@langchain/weaviate": "^0.0.4",
     "@t3-oss/env-core": "^0.11.0",
+    "langchain": "^0.2.16",
     "telegraf": "^4.16.3",
     "zod": "^3.23.8"
   }
