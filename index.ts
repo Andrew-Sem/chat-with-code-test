@@ -1,9 +1,11 @@
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { env } from "./src/env";
 import { Telegraf } from "telegraf";
 import { message } from "telegraf/filters";
-import { RetrieveService } from "./src/RetrieveService";
 import dedent from "ts-dedent";
+import { env } from "./src/env";
+import { FilesService } from "./src/services/FilesService";
+import { GithubService } from "./src/services/GithubService";
+import { RetrieveService } from "./src/services/RetrieveService";
 
 const bot = new Telegraf(env.BOT_TOKEN);
 
@@ -14,19 +16,26 @@ const llm = new ChatGoogleGenerativeAI({
 });
 
 const retrieveService = new RetrieveService();
+const githubService = new GithubService();
+const filesService = new FilesService(githubService);
 
 bot.on(message("text"), async (ctx) => {
+  const flatRepo = await filesService.generateFileListing(
+    "https://github.com/Andrew-Sem/flat-repo",
+  );
+  retrieveService.addData(flatRepo.join(""));
+
   const answer = await retrieveService.getAnswer(ctx.message.text);
 
   const systemMessage = dedent`
   You are an AI assistant tasked with answering user questions based on the provided context. Your goal is to provide accurate, relevant, and concise responses.
-  
+
   Instructions:
   1. Carefully analyze the following relevant chunks of information:
   ${JSON.stringify(
     answer.map((doc) => doc.pageContent),
     null,
-    2
+    2,
   )}
   2. Use only the information provided in these chunks to formulate your response. Do not use any external knowledge.
   3. If the provided information is insufficient to fully answer the user's question, clearly state this and explain what specific information is missing.
@@ -38,6 +47,7 @@ bot.on(message("text"), async (ctx) => {
 
   Remember, your primary goal is to provide accurate and helpful responses based solely on the given context.
   `;
+
   const response = await llm.invoke([
     ["system", systemMessage],
     ["human", `User query: ${ctx.message.text}`],

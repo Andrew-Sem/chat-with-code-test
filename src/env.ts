@@ -7,6 +7,7 @@ export const env = createEnv({
     GOOGLE_API_KEY: z.string().min(1),
     WEAVIATE_URL: z.string().min(1),
     WEAVIATE_API_KEY: z.string().min(1),
+    GITHUB_TOKEN: z.string().min(1),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

@@ -1,9 +1,9 @@
-import weaviate, { ApiKey } from "weaviate-ts-client";
-import { env } from "./env";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { WeaviateStore } from "@langchain/weaviate";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { Document } from "langchain/document";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import weaviate, { ApiKey } from "weaviate-ts-client";
+import { env } from "../env";
 
 export class RetrieveService {
   private indexName = "Code";
@@ -25,10 +25,10 @@ export class RetrieveService {
       {
         client: this.client,
         indexName: this.indexName,
-      }
+      },
     );
 
-    const retriever = vectorStore.asRetriever({ k: 1 });
+    const retriever = vectorStore.asRetriever();
 
     return await retriever.invoke(query);
   }
@@ -44,7 +44,7 @@ export class RetrieveService {
       {
         client: this.client,
         indexName: this.indexName,
-      }
+      },
     );
   }
 
