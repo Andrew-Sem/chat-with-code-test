@@ -1,16 +1,18 @@
-import type { GithubService } from "../GithubService";
+import type { GithubService } from "./GithubService";
 
 export class FilesService {
   constructor(private githubService: GithubService) {}
 
   async generateFileListing(repoUrl: string) {
-    const ignorer = await this.githubService.getIgnoredFiles(repoUrl);
     const result: string[] = [];
 
     const processDirectory = async (path: string = "") => {
-      const contents = await this.githubService.getRepoContents(repoUrl, path);
+      const contents = await this.githubService.getFilteredRepoContents(
+        repoUrl,
+        path,
+      );
       for (const item of contents) {
-        if (item.type === "file" && !ignorer.ignores(item.path)) {
+        if (item.type === "file") {
           const content = await this.githubService.getFileContent(
             repoUrl,
             item.path,
